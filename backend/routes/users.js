@@ -8,6 +8,23 @@ const jwt = require("jsonwebtoken");
 const { check, validationResult } = require("express-validator");
 const auth = require("../middlewares/auth");
 var objectid = require("mongodb").ObjectId;
+const cors=require("cors");
+const corsOptions ={
+   origin:'*', 
+   credentials:true,            //access-control-allow-credentials:true
+   optionSuccessStatus:200,
+}
+
+
+const { cloudinary } = require('../config/cloudinary');
+
+
+
+router.use(express.json({ limit: '50mb' }));
+router.use(express.urlencoded({ limit: '50mb', extended: true }));
+router.use(cors(corsOptions)) 
+
+
 
 // router.get("/",(req,res)=>{
 
@@ -152,5 +169,24 @@ router.post(
     }
   }
 );
+
+
+router.post('/upload',async(req,res)=>{
+
+  console.log("workkg")
+  try {
+    const fileStr = req.body.data;
+    console.log(req.body)
+    const uploadResponse = await cloudinary.uploader.upload(fileStr, {
+        upload_preset: 'dev_setups',
+    });
+    console.log(uploadResponse);
+    res.json({ msg: 'yaya' });
+} catch (err) {
+    console.error(err);
+    res.status(500).json({ err: 'Something went wrong' });
+}
+
+})
 
 module.exports = router;
